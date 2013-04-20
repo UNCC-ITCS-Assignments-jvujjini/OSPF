@@ -47,8 +47,8 @@ def call():
 verList = verticesList()
 edgList = initialGraph
 
-print verList
-print edgList
+#print verList
+#print edgList
 
 """print
 path Belk Education
@@ -73,6 +73,7 @@ def output():
     queries = open(sys.argv[2], "r").readlines()
     
     for line in queries:
+        line = line.rstrip()
         query = line.split(" ")
         if query[0] == 'print':
             print printGraph()
@@ -278,3 +279,6 @@ class updateGraph(Vertex,Edge):
                 list1.setStatus(vertexName,'UP')
             else:
                 continue
+
+
+output()

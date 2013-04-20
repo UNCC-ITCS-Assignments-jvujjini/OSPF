@@ -1,4 +1,5 @@
 from Queue import PriorityQueue
+from collections import namedtuple
 import sys
 
 def graphBuild():
@@ -41,32 +42,17 @@ def verticesList():
             
         return vers
 
-def call():
-    return 0
-
 verList = verticesList()
 edgList = initialGraph
 
+tempList = []
+    
+for record in edgList:
+    temp = (record[0],record[1],float(record[2]))
+    tempList.append(temp)
+
 #print verList
 #print edgList
-
-"""print
-path Belk Education
-edgedown Health Education
-path Health Education
-vertexdown Belk
-path Health Education
-print
-reachable
-edgeup Health Education 
-vertexup Belk
-deleteedge Duke Education
-path Belk Education
-path Education Belk
-addedge Education Atkins 0.25
-addedge Woodward Education 0.6
-path Belk Atkins
-print"""
 
 def output():
     
@@ -82,7 +68,7 @@ def output():
         if line[0] == 'print':
             print printGraph()
         elif line[0] == 'path':
-            print path(line)
+            print path(line[1],line[2])
         elif line[0] == 'reachable':
             print reach()
         elif line[0] == 'vertexup':
@@ -124,12 +110,28 @@ def printGraph():
     
     f.write('\n')
 
-def path(input):
+def path(source,destination):
     
-    source = input[1]
-    destination = input[2]
-    vertexQueue = PriorityQueue()
-    vertexQueue.put(source)
+    #source = input[1]
+    #destination = input[2]
+    #vertexQueue = PriorityQueue()
+    #vertexQueue.put(source)
+
+    result = ShortestPath(tempList)
+    final = result.dij(source,destination)
+    print final
+    calc = len(final)
+    calc1 = 0
+    
+    for edge in tempList:
+        for n in range(1,calc):
+            if final[n-1] == edge[0] and final[n] == edge[1]:
+                calc1 += edge[2]
+
+    for temp in final:
+        f.write(temp + " ")
+    f.write(str(calc1))
+    f.write('\n\n') 
 
 def reach():
     
@@ -155,6 +157,7 @@ def addEdge(tailVertex,headVertex,transmit_time):
         
     edgeStatus = 'UP'
     currEdge = [tailVertex,headVertex,transmit_time,edgeStatus]
+    currEdge1 = tuple(currEdge)
         
     for record in edgList:
         if currEdge[:-2] == record[:-2]:
@@ -162,11 +165,21 @@ def addEdge(tailVertex,headVertex,transmit_time):
                 break
             else:
                 record[2] = transmit_time
+                for record in tempList:
+                    if currEdge1[:-2] == record[:-2]:
+                        if currEdge1[2] == record[2]:
+                            break
+                        else:
+                            record[2] = transmit_time
                 break
             break
         else:
-            while currEdge not in initialGraph:
+            while currEdge not in edgList:
                 edgList.append(currEdge)
+                currEdge = currEdge[:-1]
+                currEdge[2] = float(currEdge[2])
+                currEdge = tuple(currEdge)
+                tempList.append(currEdge)
             break
     
 def deleteEdge(tailVertex,headVertex):
@@ -211,6 +224,41 @@ def vertexUp(vertexName):
             record[1] = 'UP'
         else:
             continue
+
+Graph = namedtuple('Graph', 'src, des, time')
+buf = float('inf')
+
+class ShortestPath():
+    def __init__(self, edgs):
+        self.edgs = edgs1 = [Graph(*rec) for rec in edgs]
+        self.verts = set(sum(([rec.src, rec.des] for rec in edgs1), []))
+ 
+    def dij(self, source, destination):
+        dist = {vertex: buf for vertex in self.verts}
+        prev = {vertex: None for vertex in self.verts}
+        dist[source] = 0
+        ver = self.verts.copy()
+        nex = {vertex: set() for vertex in self.verts}
+        for src, des, time in self.edgs:
+            nex[src].add((des, time))
+ 
+        while ver:
+            x = min(ver, key=lambda vertex: dist[vertex])
+            ver.remove(x)
+            if dist[x] == buf or x == destination:
+                break
+            for y, cost in nex[x]:
+                temp = dist[x] + cost
+                if temp < dist[y]:                                  # Relax (u,v,a)
+                    dist[y] = temp
+                    prev[y] = x
+
+        path, x = [], destination
+        while prev[x]:
+            path.insert(0, x)
+            x = prev[x]
+        path.insert(0, x)
+        return path
 
 f = open(sys.argv[3], 'w')
 output()

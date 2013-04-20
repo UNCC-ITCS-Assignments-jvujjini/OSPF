@@ -12,6 +12,7 @@ def graphBuild():
         line = line.rstrip()
         edge = line.split(" ")
         edges.append(edge)
+        edges.append([edge[1],edge[0],edge[2]])
         
     for record in edges:
         record.append('UP')
@@ -49,8 +50,6 @@ edgList = initialGraph
 print verList
 print edgList
 
-
-
 """print
 path Belk Education
 edgedown Health Education
@@ -71,7 +70,7 @@ print"""
 
 def output():
     
-    queries = inputGraph = open(sys.argv[2], "r").readlines()
+    queries = open(sys.argv[2], "r").readlines()
     
     for line in queries:
         query = line.split(" ")
@@ -82,20 +81,38 @@ def output():
         elif query[0] == 'reachable':
             print reach()
         elif query[0] == 'vertexup':
-            call()
+            verUp = updateGraph()
+            verUp.vertexUp(query[1])
         elif query[0] == 'vertexdown':
-            call()
+            verDown = updateGraph()
+            verDown.vertexDown(query[1])
         elif query[0] == 'edgeup':
-            call()
+            edgUp = updateGraph()
+            edgUp.edgeUp(query[1],query[2])
         elif query[0] == 'edgedown':
-            call()
+            edgDown = updateGraph()
+            edgDown.edgeDown(query[1],query[2])
         elif query[0] == 'addedge':
-            call()
+            add = updateGraph()
+            add.addEdge(query[1],query[2],query[3])
         else:
-            call()
+            delete = updateGraph()
+            delete.deleteEdge(query[1],query[2])
 
 def printGraph():
-    return 0
+    
+    temp = " "
+    
+    for vertex in verList:
+        print vertex[0]
+        for edge in edgList:
+            if edge[0] == vertex[0]:
+                temp = " " + edge[1] + " " + edge[2]
+                if edge[3] == 'DOWN':
+                    temp += " " + edge[3]
+                    print temp
+                else:
+                    print temp
 
 def path(input):
     
@@ -105,4 +122,159 @@ def path(input):
     vertexQueue.put(source)
 
 def reach():
-    return 0
+    
+    temp = " "
+    
+    for vertex in verList:
+        if vertex[1] == 'UP':
+            print vertex[0]
+            for edge in edgList:
+                if edge[0] == vertex[0] and edge[3] == 'UP':
+                    temp = "  " + edge[1]
+                    print temp
+                else:
+                    continue
+        else:
+            continue
+
+class Vertex:
+    
+    def __init__(self,name,status):
+        self.name = name
+        self.status = status
+    
+    def setStatus(self,name,status):
+        
+        for record in verList:
+            if record[0] == name:
+                record[1] = status
+            else:
+                continue
+    
+    def getStatus(self,name):
+        
+        for record in verList:
+            if record[0] == name:
+                return record[1]
+            else:
+                continue
+    
+    def adjVertices(self,name):
+        
+        adjVerticesList = []
+        
+        for record in initialGraph:
+            if record[0] == name or record[1] == name:
+                if record[0] == name and record[1] not in adjVerticesList:
+                    adjVerticesList += record[1]
+                elif record[0] not in adjVerticesList:
+                    adjVerticesList += record[0]
+                else:
+                    continue
+            else:
+                continue
+        
+        return adjVerticesList
+
+class Edge:
+    
+    def __init__(self,tailVertex,headVertex,transmit_time,edgeStatus):
+        self.tailVertex = tailVertex
+        self.headVertex = headVertex
+        self.transmit_time = transmit_time
+        self.edgeStatus = edgeStatus
+    
+    def setStatus(self,tailVertex,headVertex,edgeStatus):
+        
+        for record in edgList:
+            if record[0] == tailVertex and record[1] == headVertex:
+                record[3] = edgeStatus
+            else:
+                continue
+    
+    def getStatus(self,tailVertex,headVertex,edgeStatus):
+        
+        for record in edgList:
+            if record[0] == tailVertex and record[1] == headVertex:
+                return edgeStatus
+            else:
+                continue
+    
+    def getEdge(self,tailVertex,headVertex):
+        
+        for record in initialGraph:
+            if tailVertex == record[0] and headVertex == record[1]:
+                return record
+            else:
+                continue
+
+class updateGraph(Vertex,Edge):
+    
+    def addEdge(self,tailVertex,headVertex,transmit_time):
+        
+        edgeStatus = 'UP'
+        currEdge = [tailVertex,headVertex,transmit_time,edgeStatus]
+        
+        for record in edgList:
+            if currEdge[:-2] == record[:-2]:
+                if currEdge[2] == record[2]:
+                    break
+                else:
+                    record[2] = transmit_time
+                    break
+                break
+            else:
+                while currEdge not in initialGraph:
+                    edgList.append(currEdge)
+                break
+    
+    def deleteEdge(self,tailVertex,headVertex):
+        
+        currEdge = [tailVertex,headVertex]
+        
+        for record in edgList:
+            if record[:-2] == currEdge:
+                edgList.remove(record)
+                break
+            else:
+                continue
+    
+    def edgeDown(self,tailVertex,headVertex):
+        
+        list1 = Edge()
+        
+        for record in edgList:
+            if record[0] == tailVertex and record[1] == headVertex:
+                list1.setStatus(tailVertex,headVertex,'DOWN')
+            else:
+                continue
+    
+    def edgeUp(self,tailVertex,headVertex):
+        
+        list1 = Edge()
+        
+        for record in edgList:
+            if record[0] == tailVertex and record[1] == headVertex:
+                list1.setStatus(tailVertex,headVertex,'UP')
+            else:
+                continue
+    
+    def vertexDown(self,vertexName):
+        
+        list1 = Vertex()
+        
+        for record in verList:
+            if record[0] == vertexName:
+                list1.setStatus(vertexName,'DOWN')
+            else:
+                continue
+    
+    def vertexUp(self,vertexName):
+        
+        list1 = Vertex()
+        
+        for record in verList:
+            if record[0] == vertexName:
+                list1.setStatus(vertexName,'UP')
+            else:
+                continue

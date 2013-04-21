@@ -157,7 +157,6 @@ def addEdge(tailVertex,headVertex,transmit_time):
         
     edgeStatus = 'UP'
     currEdge = [tailVertex,headVertex,transmit_time,edgeStatus]
-    currEdge1 = tuple(currEdge)
         
     for record in edgList:
         if currEdge[:-2] == record[:-2]:
@@ -165,21 +164,11 @@ def addEdge(tailVertex,headVertex,transmit_time):
                 break
             else:
                 record[2] = transmit_time
-                for record in tempList:
-                    if currEdge1[:-2] == record[:-2]:
-                        if currEdge1[2] == record[2]:
-                            break
-                        else:
-                            record[2] = transmit_time
                 break
             break
         else:
             while currEdge not in edgList:
                 edgList.append(currEdge)
-                currEdge = currEdge[:-1]
-                currEdge[2] = float(currEdge[2])
-                currEdge = tuple(currEdge)
-                tempList.append(currEdge)
             break
     
 def deleteEdge(tailVertex,headVertex):
@@ -216,14 +205,14 @@ def vertexDown(vertexName):
             record[1] = 'DOWN'
         else:
             continue
-    
+            
 def vertexUp(vertexName):
         
     for record in verList:
         if record[0] == vertexName:
             record[1] = 'UP'
         else:
-            continue
+            continue                
 
 Graph = namedtuple('Graph', 'src, des, time')
 buf = float('inf')
